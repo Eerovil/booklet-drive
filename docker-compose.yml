@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  booklet-ftp:
+    build: .
+    container_name: booklet-ftp
+    restart: unless-stopped
+
+    ports:
+      - "21:21"
+      - "10000-10100:10000-10100"
+
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf
+      - ./data/google_drive:/data/google_drive  # Google Drive sync folder
+      - ./data/booklets:/data/booklets  # Processed PDFs (booklet format)
+      - ./data/booklets:/var/ftp/booklets  # Booklet PDFs for FTP
+
+    environment:
+      FTP_USER: "ftpuser"
+      FTP_PASS: "yourpassword"
+      GOOGLE_DRIVE_FOLDER: "/Joensuun Mieslaulajat/NUOTIT/"  # Change to your folder path"
+

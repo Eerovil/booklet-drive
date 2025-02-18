@@ -1,44 +1,82 @@
 import os
 import subprocess
 import time
+from PyPDF2._page import PageObject
 from PyPDF2 import PdfReader, PdfWriter
 
 # Define paths
-GOOGLE_DRIVE_FOLDER = "gdrive:/your-folder"  # Change to your folder path
+GOOGLE_DRIVE_FOLDER = "gdrive:/" + os.environ.get("GOOGLE_DRIVE_FOLDER", "Books")
 LOCAL_DOWNLOAD_FOLDER = "/data/google_drive"
-UNPROCESSED_FOLDER = "/var/ftp/unprocessed"
 BOOKLET_FOLDER = "/var/ftp/booklets"
 
 # Ensure directories exist
 os.makedirs(LOCAL_DOWNLOAD_FOLDER, exist_ok=True)
-os.makedirs(UNPROCESSED_FOLDER, exist_ok=True)
 os.makedirs(BOOKLET_FOLDER, exist_ok=True)
 
-# Function to convert PDF to booklet format
+# Function to ensure pages are a multiple of 4 for booklet printing
+def ensure_multiple_of_four(pages):
+    while len(pages) % 4 != 0:
+        blank_page = PageObject.create_blank_page(width=pages[0].mediabox.width,
+                                                  height=pages[0].mediabox.height)
+        pages.append(blank_page)
+    return pages
+
+# Function to create booklet-imposed PDF
 def convert_to_booklet(pdf_path, output_path):
     try:
+        # Step 1: Load PDF
         reader = PdfReader(pdf_path)
-        writer = PdfWriter()
-
-        pages = reader.pages
+        pages = list(reader.pages)
+        pages = ensure_multiple_of_four(pages)  # Ensure page count is a multiple of 4
         total_pages = len(pages)
 
-        # Ensure even number of pages
-        if total_pages % 2 != 0:
-            pages.append(None)
+        # Step 2: Rearrange pages for booklet format
+        booklet_order = []
+        left = 0
+        right = total_pages - 1
 
-        for i in range(0, len(pages), 2):
-            if pages[i + 1] is not None:
-                writer.add_page(pages[i + 1])
-            writer.add_page(pages[i])
+        while left < right:
+            booklet_order.append(pages[right])  # Last page
+            booklet_order.append(pages[left])   # First page
+            left += 1
+            right -= 1
+            if left < right:
+                booklet_order.append(pages[left])  # Second page
+                booklet_order.append(pages[right]) # Second-last page
+                left += 1
+                right -= 1
 
-        with open(output_path, "wb") as out_file:
-            writer.write(out_file)
+        # Step 3: Save reordered pages as temporary PDF
+        temp_pdf = output_path.replace(".pdf", "_reordered.pdf")
+        writer = PdfWriter()
+        for page in booklet_order:
+            writer.add_page(page)
+        with open(temp_pdf, "wb") as f:
+            writer.write(f)
 
-        print(f"Converted {pdf_path} to booklet format at {output_path}")
+        # Step 4: Use Ghostscript or pdfjam for 2-up booklet imposition
+        final_booklet = output_path.replace(".pdf", "_booklet.pdf")
+
+        gs_command = [
+            "pdfjam",
+            "--outfile", final_booklet,
+            "--landscape", "--nup", "2x1",
+            "--paper", "a4paper",
+            "--scale", "0.95",
+            temp_pdf
+        ]
+
+        # Run pdfjam to impose booklet layout
+        subprocess.run(gs_command, check=True)
+
+        print(f"Converted {pdf_path} to booklet format at {final_booklet}")
+
+        # Cleanup temp files
+        os.remove(temp_pdf)
 
     except Exception as e:
         print(f"Error processing {pdf_path}: {e}")
+        raise
 
 # Function to sync Google Drive and process PDFs
 def sync_and_process_pdfs():
@@ -50,13 +88,12 @@ def sync_and_process_pdfs():
         for filename in os.listdir(LOCAL_DOWNLOAD_FOLDER):
             if filename.lower().endswith(".pdf"):
                 input_pdf = os.path.join(LOCAL_DOWNLOAD_FOLDER, filename)
-                unprocessed_pdf = os.path.join(UNPROCESSED_FOLDER, filename)
                 processed_pdf = os.path.join(BOOKLET_FOLDER, f"booklet_{filename}")
 
-                # Copy original PDF to FTP unprocessed folder
-                subprocess.run(["cp", input_pdf, unprocessed_pdf], check=True)
-
-                # Convert PDF to booklet format
+                # # If PDF is not already in booklet format
+                # if not os.path.exists(processed_pdf):
+                #     # Convert PDF to booklet format
+                #     convert_to_booklet(input_pdf, processed_pdf)
                 convert_to_booklet(input_pdf, processed_pdf)
 
         print("Waiting for next sync...")
