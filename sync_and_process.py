@@ -27,7 +27,6 @@ def convert_to_booklet(pdf_path, output_path):
         # Step 1: Load PDF
         reader = PdfReader(pdf_path)
         pages = list(reader.pages)
-        pages = ensure_multiple_of_four(pages)  # Ensure page count is a multiple of 4
         total_pages = len(pages)
 
         if total_pages == 1:
@@ -40,6 +39,9 @@ def convert_to_booklet(pdf_path, output_path):
             # Special case for 2-page PDFs
             booklet_order = [pages[0], pages[1]]
         else:
+            pages = ensure_multiple_of_four(pages)  # Ensure page count is a multiple of 4
+            total_pages = len(pages)
+
             left = 0
             right = total_pages - 1
 
