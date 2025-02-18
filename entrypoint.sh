@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Create FTP user
+FTP_USER="ftpuser"
+FTP_PASS="yourpassword"
+
+# Check if user exists, if not create it
+if ! id "$FTP_USER" &>/dev/null; then
+    echo "Creating FTP user: $FTP_USER"
+    useradd -m -d /var/ftp -s /usr/sbin/nologin $FTP_USER
+    echo "$FTP_USER:$FTP_PASS" | chpasswd
+fi
+
+# Set up FTP directories
+mkdir -p /var/ftp/unprocessed /var/ftp/booklets
+chown -R $FTP_USER:$FTP_USER /var/ftp
+
+# Start Google Drive sync & processing script in the background
+python3 /usr/local/bin/sync_and_process.py &
+
+# Start FTP server
+vsftpd /etc/vsftpd.conf
