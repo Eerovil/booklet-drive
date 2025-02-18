@@ -30,21 +30,29 @@ def convert_to_booklet(pdf_path, output_path):
         pages = ensure_multiple_of_four(pages)  # Ensure page count is a multiple of 4
         total_pages = len(pages)
 
+        if total_pages == 1:
+            return  # Skip single-page PDFs
+
         # Step 2: Rearrange pages for booklet format
         booklet_order = []
-        left = 0
-        right = total_pages - 1
 
-        while left < right:
-            booklet_order.append(pages[right])  # Last page
-            booklet_order.append(pages[left])   # First page
-            left += 1
-            right -= 1
-            if left < right:
-                booklet_order.append(pages[left])  # Second page
-                booklet_order.append(pages[right]) # Second-last page
+        if total_pages == 2:
+            # Special case for 2-page PDFs
+            booklet_order = [pages[0], pages[1]]
+        else:
+            left = 0
+            right = total_pages - 1
+
+            while left < right:
+                booklet_order.append(pages[right])  # Last page
+                booklet_order.append(pages[left])   # First page
                 left += 1
                 right -= 1
+                if left < right:
+                    booklet_order.append(pages[left])  # Second page
+                    booklet_order.append(pages[right]) # Second-last page
+                    left += 1
+                    right -= 1
 
         # Step 3: Save reordered pages as temporary PDF
         temp_pdf = output_path.replace(".pdf", "_reordered.pdf")
@@ -62,7 +70,7 @@ def convert_to_booklet(pdf_path, output_path):
             "--outfile", final_booklet,
             "--landscape", "--nup", "2x1",
             "--paper", "a4paper",
-            "--scale", "0.95",
+            "--scale", "1.00",
             temp_pdf
         ]
 
