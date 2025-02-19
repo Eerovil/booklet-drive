@@ -8,7 +8,7 @@ fi
 echo "$FTP_USER:$FTP_PASS" | chpasswd
 
 # Set up FTP directories
-mkdir -p /var/ftp/unprocessed /var/ftp/booklets
+mkdir -p /var/ftp/google_drive /var/ftp/booklets
 chown -R $FTP_USER:$FTP_USER /var/ftp
 
 # Start Google Drive sync & processing script in the background
