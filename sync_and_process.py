@@ -107,6 +107,8 @@ def sync_and_process_pdfs():
 
                     # If PDF is not already in booklet format
                     if not os.path.exists(booklet_folderpath):
+                        # Make the directory if it doesn't exist
+                        os.makedirs(os.path.dirname(booklet_folderpath), exist_ok=True)
                         # Convert PDF to booklet format
                         convert_to_booklet(input_pdf, booklet_folderpath)
                     # convert_to_booklet(input_pdf, processed_pdf)
