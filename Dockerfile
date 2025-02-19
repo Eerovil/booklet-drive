@@ -24,8 +24,9 @@ COPY sync_and_process.py /usr/local/bin/
 COPY vsftpd.conf /etc/vsftpd.conf
 COPY entrypoint.sh /usr/local/bin/
 
-# Fix PAM authentication for vsftpd
-RUN echo -e "auth required pam_unix.so\naccount required pam_unix.so" > /etc/pam.d/vsftpd
+# Fix PAM authentication for vsftpd (correct syntax)
+RUN echo "auth required pam_unix.so" > /etc/pam.d/vsftpd && \
+    echo "account required pam_unix.so" >> /etc/pam.d/vsftpd
 
 # Set execute permissions
 RUN chmod +x /usr/local/bin/entrypoint.sh
