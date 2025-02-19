@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Create FTP user
-FTP_USER="ftpuser"
-FTP_PASS="yourpassword"
-
 # Check if user exists, if not create it
 if ! id "$FTP_USER" &>/dev/null; then
     echo "Creating FTP user: $FTP_USER"

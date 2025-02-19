@@ -17,7 +17,7 @@ services:
       - ./data/booklets:/var/ftp/booklets  # Booklet PDFs for FTP
 
     environment:
-      FTP_USER: "ftpuser"
-      FTP_PASS: "yourpassword"
-      GOOGLE_DRIVE_FOLDER: "/Joensuun Mieslaulajat/NUOTIT/"  # Change to your folder path"
+      FTP_USER: $FTP_USER
+      FTP_PASS: $FTP_PASS
+      GOOGLE_DRIVE_FOLDER: $GOOGLE_DRIVE_FOLDER
 

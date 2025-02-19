@@ -86,7 +86,10 @@ def convert_to_booklet(pdf_path, output_path):
 
     except Exception as e:
         print(f"Error processing {pdf_path}: {e}")
-        raise
+        try:
+            os.remove(temp_pdf)
+        except:
+            pass
 
 # Function to sync Google Drive and process PDFs
 def sync_and_process_pdfs():
@@ -98,13 +101,13 @@ def sync_and_process_pdfs():
         for filename in os.listdir(LOCAL_DOWNLOAD_FOLDER):
             if filename.lower().endswith(".pdf"):
                 input_pdf = os.path.join(LOCAL_DOWNLOAD_FOLDER, filename)
-                processed_pdf = os.path.join(BOOKLET_FOLDER, f"booklet_{filename}")
+                processed_pdf = os.path.join(BOOKLET_FOLDER, f"{filename}_booklet.pdf")
 
-                # # If PDF is not already in booklet format
-                # if not os.path.exists(processed_pdf):
-                #     # Convert PDF to booklet format
-                #     convert_to_booklet(input_pdf, processed_pdf)
-                convert_to_booklet(input_pdf, processed_pdf)
+                # If PDF is not already in booklet format
+                if not os.path.exists(processed_pdf):
+                    # Convert PDF to booklet format
+                    convert_to_booklet(input_pdf, processed_pdf)
+                # convert_to_booklet(input_pdf, processed_pdf)
 
         print("Waiting for next sync...")
         time.sleep(600)  # Sync every 10 minutes
