@@ -98,17 +98,18 @@ def sync_and_process_pdfs():
         subprocess.run(["rclone", "sync", GOOGLE_DRIVE_FOLDER, LOCAL_DOWNLOAD_FOLDER, '--include', '*.pdf'], check=True)
 
         print("Processing PDFs...")
-        for filepath, _, _ in os.walk(LOCAL_DOWNLOAD_FOLDER):
-            if filepath.lower().endswith(".pdf"):
-                input_pdf = filepath
-                booklet_filepath = filepath.replace(".pdf", "_booklet.pdf")
-                booklet_filepath = booklet_filepath.replace(LOCAL_DOWNLOAD_FOLDER, BOOKLET_FOLDER)
+        for folderpath, _, filelist in os.walk(LOCAL_DOWNLOAD_FOLDER):
+            for filename in filelist:
+                if filename.lower().endswith(".pdf"):
+                    input_pdf = os.path.join(folderpath, filename)
+                    booklet_folderpath = folderpath.replace(".pdf", "_booklet.pdf")
+                    booklet_folderpath = booklet_folderpath.replace(LOCAL_DOWNLOAD_FOLDER, BOOKLET_FOLDER)
 
-                # If PDF is not already in booklet format
-                if not os.path.exists(booklet_filepath):
-                    # Convert PDF to booklet format
-                    convert_to_booklet(input_pdf, booklet_filepath)
-                # convert_to_booklet(input_pdf, processed_pdf)
+                    # If PDF is not already in booklet format
+                    if not os.path.exists(booklet_folderpath):
+                        # Convert PDF to booklet format
+                        convert_to_booklet(input_pdf, booklet_folderpath)
+                    # convert_to_booklet(input_pdf, processed_pdf)
 
         print("Waiting for next sync...")
         time.sleep(600)  # Sync every 10 minutes
