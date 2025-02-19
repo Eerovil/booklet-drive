@@ -65,7 +65,7 @@ def convert_to_booklet(pdf_path, output_path):
             writer.write(f)
 
         # Step 4: Use Ghostscript or pdfjam for 2-up booklet imposition
-        final_booklet = output_path.replace(".pdf", "_booklet.pdf")
+        final_booklet = output_path
 
         gs_command = [
             "pdfjam",
