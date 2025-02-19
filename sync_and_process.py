@@ -95,7 +95,7 @@ def convert_to_booklet(pdf_path, output_path):
 def sync_and_process_pdfs():
     while True:
         print("Syncing Google Drive...")
-        subprocess.run(["rclone", "sync", GOOGLE_DRIVE_FOLDER, LOCAL_DOWNLOAD_FOLDER], check=True)
+        subprocess.run(["rclone", "sync", GOOGLE_DRIVE_FOLDER, LOCAL_DOWNLOAD_FOLDER, '--include', '*.pdf'], check=True)
 
         print("Processing PDFs...")
         for filename in os.listdir(LOCAL_DOWNLOAD_FOLDER):
