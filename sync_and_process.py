@@ -101,7 +101,8 @@ def sync_and_process_pdfs():
         for filename in os.listdir(LOCAL_DOWNLOAD_FOLDER):
             if filename.lower().endswith(".pdf"):
                 input_pdf = os.path.join(LOCAL_DOWNLOAD_FOLDER, filename)
-                processed_pdf = os.path.join(BOOKLET_FOLDER, f"{filename}_booklet.pdf")
+                booklet_filename = filename.replace(".pdf", "_booklet.pdf")
+                processed_pdf = os.path.join(BOOKLET_FOLDER, booklet_filename)
 
                 # If PDF is not already in booklet format
                 if not os.path.exists(processed_pdf):
