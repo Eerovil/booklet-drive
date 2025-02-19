@@ -6,7 +6,7 @@ from PyPDF2 import PdfReader, PdfWriter
 
 # Define paths
 GOOGLE_DRIVE_FOLDER = "gdrive:/" + os.environ.get("GOOGLE_DRIVE_FOLDER", "Books")
-LOCAL_DOWNLOAD_FOLDER = "/data/google_drive"
+LOCAL_DOWNLOAD_FOLDER = "/var/ftp/google_drive"
 BOOKLET_FOLDER = "/var/ftp/booklets"
 
 # Ensure directories exist

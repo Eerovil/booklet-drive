@@ -12,8 +12,7 @@ services:
 
     volumes:
       - ./rclone-config:/root/.config/rclone/
-      - ./data/google_drive:/data/google_drive  # Google Drive sync folder
-      - ./data/booklets:/data/booklets  # Processed PDFs (booklet format)
+      - ./data/google_drive:/var/ftp/google_drive  # Google Drive sync folder
       - ./data/booklets:/var/ftp/booklets  # Booklet PDFs for FTP
 
     environment:

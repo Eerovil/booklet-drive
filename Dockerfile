@@ -32,7 +32,7 @@ RUN echo "auth required pam_unix.so" > /etc/pam.d/vsftpd && \
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Ensure directories exist
-RUN mkdir -p /data/google_drive /data/booklets /var/ftp/unprocessed /var/ftp/booklets
+RUN mkdir -p /var/ftp/booklets /var/ftp/google_drive
 
 # Expose FTP ports
 EXPOSE 21 10000-10100
