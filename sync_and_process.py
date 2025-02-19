@@ -98,7 +98,7 @@ def sync_and_process_pdfs():
         subprocess.run(["rclone", "sync", GOOGLE_DRIVE_FOLDER, LOCAL_DOWNLOAD_FOLDER, '--include', '*.pdf'], check=True)
 
         print("Processing PDFs...")
-        for filepath in os.walk(LOCAL_DOWNLOAD_FOLDER):
+        for filepath, _, _ in os.walk(LOCAL_DOWNLOAD_FOLDER):
             if filepath.lower().endswith(".pdf"):
                 input_pdf = filepath
                 booklet_filepath = filepath.replace(".pdf", "_booklet.pdf")
