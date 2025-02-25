@@ -28,6 +28,9 @@ COPY entrypoint.sh /usr/local/bin/
 RUN echo "auth required pam_unix.so" > /etc/pam.d/vsftpd && \
     echo "account required pam_unix.so" >> /etc/pam.d/vsftpd
 
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
 # Set execute permissions
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
