@@ -63,7 +63,7 @@ def convert_to_booklet(pdf_path, output_path):
         for page in booklet_order:
             every = not every
             if every:
-                page.rotateCounterClockwise(180)
+                page.rotate(180)
             writer.add_page(page)
         with open(temp_pdf, "wb") as f:
             writer.write(f)
