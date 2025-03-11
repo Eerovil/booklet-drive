@@ -88,6 +88,9 @@ def convert_to_booklet(pdf_path, output_path):
         # Cleanup temp files
         os.remove(temp_pdf)
 
+        # Set permissions
+        os.chmod(final_booklet, 0o777)
+
     except Exception as e:
         print(f"Error processing {pdf_path}: {e}")
         try:
@@ -105,6 +108,8 @@ def sync_and_process_pdfs():
         for folderpath, _, filelist in os.walk(LOCAL_DOWNLOAD_FOLDER):
             for filename in filelist:
                 if filename.lower().endswith(".pdf"):
+                    # set permissions
+                    os.chmod(os.path.join(folderpath, filename), 0o777)
                     input_pdf = os.path.join(folderpath, filename)
                     booklet_folderpath = input_pdf.replace(".pdf", "_booklet.pdf")
                     booklet_folderpath = booklet_folderpath.replace(LOCAL_DOWNLOAD_FOLDER, BOOKLET_FOLDER)
