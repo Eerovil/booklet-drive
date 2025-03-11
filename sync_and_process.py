@@ -59,7 +59,11 @@ def convert_to_booklet(pdf_path, output_path):
         # Step 3: Save reordered pages as temporary PDF
         temp_pdf = output_path.replace(".pdf", "_reordered.pdf")
         writer = PdfWriter()
+        every = False
         for page in booklet_order:
+            every = not every
+            if every:
+                page.rotateCounterClockwise(180)
             writer.add_page(page)
         with open(temp_pdf, "wb") as f:
             writer.write(f)
@@ -71,7 +75,7 @@ def convert_to_booklet(pdf_path, output_path):
             "pdfjam",
             "--outfile", final_booklet,
             "--landscape", "--nup", "2x1",
-            "--paper", "a4paper",
+            "--paper", "a3paper",
             "--scale", "1.00",
             temp_pdf
         ]
