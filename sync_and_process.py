@@ -59,21 +59,17 @@ def convert_to_booklet(pdf_path, output_path):
         # Step 3: Save reordered pages as temporary PDF
         temp_pdf = output_path.replace(".pdf", "_reordered.pdf")
         writer = PdfWriter()
-        every = False
         for page in booklet_order:
-            every = not every
-            if every:
-                page.rotate(180)
             writer.add_page(page)
         with open(temp_pdf, "wb") as f:
             writer.write(f)
 
         # Step 4: Use Ghostscript or pdfjam for 2-up booklet imposition
-        final_booklet = output_path
+        temp2_pdf = output_path.replace(".pdf", "_2up.pdf")
 
         gs_command = [
             "pdfjam",
-            "--outfile", final_booklet,
+            "--outfile", temp2_pdf,
             "--landscape", "--nup", "2x1",
             "--paper", "a3paper",
             "--scale", "1.00",
@@ -82,19 +78,37 @@ def convert_to_booklet(pdf_path, output_path):
 
         # Run pdfjam to impose booklet layout
         subprocess.run(gs_command, check=True)
+        # Rotate every other page by 180 degrees (if needed)
 
-        print(f"Converted {pdf_path} to booklet format at {final_booklet}")
+        # Get total number of pages in the PDF
+        with open(temp2_pdf, "rb") as f:
+            reader = PdfReader(f)
+            total_pages = len(reader.pages)
+
+        # Generate `pdftk` command
+        flip_command = ["pdftk", temp2_pdf, "cat"]
+
+        for i in range(1, total_pages + 1):
+            if i % 2 == 0:  # Only flip even pages
+                flip_command.append(f"{i}south")
+            else:
+                flip_command.append(str(i))  # Keep odd pages unchanged
+
+        flip_command.extend(["output", output_path])
+
+        subprocess.run(flip_command, check=True)
+
+        print(f"Converted {pdf_path} to booklet format at {output_path}")
 
         # Cleanup temp files
         os.remove(temp_pdf)
-
-        # Set permissions
-        os.chmod(final_booklet, 0o777)
+        os.remove(temp2_pdf)
 
     except Exception as e:
         print(f"Error processing {pdf_path}: {e}")
         try:
             os.remove(temp_pdf)
+            os.remove(temp2_pdf)
         except:
             pass
 
@@ -102,14 +116,16 @@ def convert_to_booklet(pdf_path, output_path):
 def sync_and_process_pdfs():
     while True:
         print("Syncing Google Drive...")
-        subprocess.run(["rclone", "sync", GOOGLE_DRIVE_FOLDER, LOCAL_DOWNLOAD_FOLDER, '--include', '*.pdf'], check=True)
+        try:
+            subprocess.run(["rclone", "sync", GOOGLE_DRIVE_FOLDER, LOCAL_DOWNLOAD_FOLDER, '--include', '*.pdf'], check=True)
+        except Exception as e:
+            print(f"Error syncing Google Drive: {e}")
 
         print("Processing PDFs...")
         for folderpath, _, filelist in os.walk(LOCAL_DOWNLOAD_FOLDER):
             for filename in filelist:
                 if filename.lower().endswith(".pdf"):
                     # set permissions
-                    os.chmod(os.path.join(folderpath, filename), 0o777)
                     input_pdf = os.path.join(folderpath, filename)
                     booklet_folderpath = input_pdf.replace(".pdf", "_booklet.pdf")
                     booklet_folderpath = booklet_folderpath.replace(LOCAL_DOWNLOAD_FOLDER, BOOKLET_FOLDER)

@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     texlive-extra-utils \
     texlive-fonts-recommended \
     vsftpd \
+    pdftk-java \
+    poppler-utils \
     && apt-get clean
 
 # Create a virtual environment and install dependencies
