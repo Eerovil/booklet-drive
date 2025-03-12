@@ -21,6 +21,12 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir PyPDF2
 
+# Install required packages
+RUN apt-get update && apt-get install -y \
+    language-pack-en-base \
+    && apt-get clean \
+    && locale-gen en_US.UTF-8
+
 # Copy script files
 COPY sync_and_process.py /usr/local/bin/
 COPY vsftpd.conf /etc/vsftpd.conf
